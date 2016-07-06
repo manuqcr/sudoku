@@ -44,6 +44,7 @@ public class MainDialog extends JDialog {
 
     public static void main(String[] args) {
         MainDialog dialog = new MainDialog();
+        dialog.setMinimumSize(new Dimension(400,400));
         dialog.pack();
         dialog.setVisible(true);
         System.exit(0);
