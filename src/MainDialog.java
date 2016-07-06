@@ -20,12 +20,13 @@ public class MainDialog extends JDialog {
 
         generateGrid();
 
-        regle1Button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                getCell(0, 5).setForeground(Color.BLUE);
+        /* Ici on enregistre les règles : */
+        regle1Button.addActionListener((actionEvent) -> colorCellInBlue());
     }
-        });
+
+
+    void colorCellInBlue(){
+        getCell(0, 5).setBackground(Color.BLUE);
     }
 
     JTextField getCell(int row, int column){
