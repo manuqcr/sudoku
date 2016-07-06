@@ -12,7 +12,7 @@ public class MainDialog extends JDialog {
 
     GridLayout cellLayout = new GridLayout(9,9);
 
-    ArrayList<JLabel> cells = new ArrayList<JLabel>(81);
+    ArrayList<JTextField> cells = new ArrayList<JTextField>(81);
 
     public MainDialog() {
         setContentPane(contentPane);
@@ -24,11 +24,11 @@ public class MainDialog extends JDialog {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 getCell(0, 5).setForeground(Color.BLUE);
-            }
+    }
         });
     }
 
-    JLabel getCell(int row, int column){
+    JTextField getCell(int row, int column){
         return cells.get(row*9+column);
     }
 
@@ -36,7 +36,7 @@ public class MainDialog extends JDialog {
         this.gridPanel.setLayout(cellLayout);
         for (int i = 0; i < 9; ++i){
             for (int j = 0; j < 9; ++j) {
-                JLabel cell = new JLabel(i + " " + j);
+                JTextField cell = new JTextField();
                 cells.add(cell);
                 this.gridPanel.add(cell);
             }
