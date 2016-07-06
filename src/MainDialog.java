@@ -1,34 +1,44 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 public class MainDialog extends JDialog {
     private JPanel contentPane;
-    GridLayout gridManager = new GridLayout(9,9);
+    private JButton regle1Button;
+    private JButton regle2Button;
+    private JPanel gridPanel;
 
-    ArrayList<JButton> buttons = new ArrayList<JButton>(81);
+    GridLayout cellLayout = new GridLayout(9,9);
+
+    ArrayList<JLabel> cells = new ArrayList<JLabel>(81);
 
     public MainDialog() {
-
         setContentPane(contentPane);
         setModal(true);
 
-        setLayout(gridManager);
         generateGrid();
 
-        getButton(0,5).setBackground(Color.BLACK);
+        regle1Button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                getCell(0, 5).setForeground(Color.BLUE);
+            }
+        });
     }
 
-    JButton getButton(int row, int column){
-        return buttons.get(row*9+column);
+    JLabel getCell(int row, int column){
+        return cells.get(row*9+column);
     }
 
     private void generateGrid() {
+        this.gridPanel.setLayout(cellLayout);
         for (int i = 0; i < 9; ++i){
             for (int j = 0; j < 9; ++j) {
-                JButton button = new JButton(i + " " + j);
-                buttons.add(button);
-                this.contentPane.add(button);
+                JLabel cell = new JLabel(i + " " + j);
+                cells.add(cell);
+                this.gridPanel.add(cell);
             }
         }
     }
