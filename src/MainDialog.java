@@ -8,7 +8,7 @@ public class MainDialog extends JDialog {
     private JButton regle2Button;
     private JPanel gridPanel;
 
-    GridLayout cellLayout = new GridLayout(9,9);
+    GridLayout cellLayout = new GridLayout(11,11);
 
     ArrayList<JTextField> cells = new ArrayList<JTextField>(81);
 
@@ -32,12 +32,22 @@ public class MainDialog extends JDialog {
     }
 
     private void generateGrid() {
-        this.gridPanel.setLayout(cellLayout);
-        for (int i = 0; i < 9; ++i){
-            for (int j = 0; j < 9; ++j) {
+        gridPanel.setLayout(cellLayout);
+        for (int row = 0; row < 9; ++row){
+            for (int column = 0; column < 9; ++column) {
                 JTextField cell = new JTextField();
                 cells.add(cell);
-                this.gridPanel.add(cell);
+                gridPanel.add(cell);
+                /* Ajout d'un élément vide pour séparer les carrés horizontalement */
+                if (column == 2 || column == 5){
+                    gridPanel.add(new JLabel());
+                }
+            }
+            /* Ajout d'une ligne d'élément vide pour séparer les carrés verticalement */
+            if (row == 2 || row == 5){
+                for (int column = 0; column< 11; ++column){
+                    gridPanel.add(new JLabel());
+                }
             }
         }
     }
