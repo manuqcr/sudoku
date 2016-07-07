@@ -30,20 +30,21 @@
               <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
             </constraints>
           </vspacer>
-          <component id="de458" class="javax.swing.JButton" binding="regle1Button" default-binding="true">
+          <component id="de458" class="javax.swing.JButton" binding="lockButton">
             <constraints>
               <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Regle 1"/>
+              <actionCommand value="Vérouiller"/>
+              <text value="Verrouiller"/>
             </properties>
           </component>
-          <component id="1652c" class="javax.swing.JButton" binding="regle2Button" default-binding="true">
+          <component id="1652c" class="javax.swing.JButton" binding="regle1Button" default-binding="true">
             <constraints>
               <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Regle 2"/>
+              <text value="Regle 1"/>
             </properties>
           </component>
           <component id="63c02" class="javax.swing.JSpinner" binding="spinner1" default-binding="true">

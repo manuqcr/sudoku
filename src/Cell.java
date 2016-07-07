@@ -11,10 +11,10 @@ public class Cell  {
 
     private final JButton button;
     private final JSpinner spinner;
-    private Color background;
 
     Set<Integer> possibleValues = new HashSet<>();
     Integer chosenValue = null;
+    private boolean isLocked = false;
 
     public Cell(JSpinner spinner) {
         button = new JButton();
@@ -37,9 +37,7 @@ public class Cell  {
         button.addMouseListener(new MouseListener() {
             public void mouseClicked(MouseEvent mouseEvent) {
                 if (mouseEvent.getButton() == 3){
-                    chosenValue = null;
-                    possibleValues.add((Integer)spinner.getValue());
-
+                    addPossibleValue();
                     updateText();
                 }
             }
@@ -52,12 +50,23 @@ public class Cell  {
         });
     }
 
+    private void addPossibleValue() {
+        if (isLocked && chosenValue != null) {
+            return;
+        }
+        chosenValue = null;
+        possibleValues.add((Integer)spinner.getValue());
+    }
+
     /**
      * Pour mettre la valeur d'une cellule.
      * Ne pas utiliser pour des valeurs possibles, mais pour l'unique valeur qu'on pense que la cellule doit contenir
      * @param i valeur en question
      */
     public void setValue(int i) {
+        if (isLocked) {
+            return;
+        }
         chosenValue = new Integer(i);
     }
 
@@ -79,11 +88,19 @@ public class Cell  {
         }
     }
 
-    public void setBackground(Color background) {
-        this.background = background;
+    public void setBackground(Color color) {
+        button.setBackground(color);
     }
 
     public void addToPanel(JPanel gridPanel, GridBagConstraints c) {
         gridPanel.add(button, c);
+    }
+
+    public void lock() {
+        if (chosenValue == null){
+            return;
+        }
+        button.setBackground(new Color(255,255,200));
+        isLocked = true;
     }
 }

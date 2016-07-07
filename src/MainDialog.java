@@ -1,19 +1,18 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
 
 public class MainDialog extends JDialog {
     private JPanel contentPane;
+    private JButton lockButton;
     private JButton regle1Button;
-    private JButton regle2Button;
     private JPanel gridPanel;
     private JLabel mainLabel;
     private JSpinner spinner1;
 
     GridBagLayout cellLayout = new GridBagLayout();
 
-    ArrayList<Cell> cells = new ArrayList<>(81);
+    Board board = new Board();
 
     public MainDialog() {
         setContentPane(contentPane);
@@ -30,21 +29,14 @@ public class MainDialog extends JDialog {
         }
 
         /* Ici on enregistre les règles : */
-        regle1Button.addActionListener((actionEvent) -> colorCellInBlue());
+        lockButton.addActionListener((actionEvent) -> board.lockEverything());
+
     }
 
     private ActionListener getActionListener(final int i) {
         return (actionEvent) -> {
             spinner1.setValue(i);
         };
-    }
-
-    void colorCellInBlue() {
-        getCell(0, 5).setBackground(Color.BLUE);
-    }
-
-    Cell getCell(int row, int column) {
-        return cells.get(row * 9 + column);
     }
 
     private void generateGrid() {
@@ -97,13 +89,13 @@ public class MainDialog extends JDialog {
 
                 c.gridwidth = 1;
                 c.gridheight = 1;
-                if (cells.isEmpty()){
+                if (row == 0 && column == 0){
                     c.anchor = GridBagConstraints.PAGE_START;
-                } else if (cells.size() == 80){
+                } else if (row == 8 && column==8){
                     c.anchor = GridBagConstraints.PAGE_END;
                 }
 
-                cells.add(cell);
+                board.add(cell);
                 cell.addToPanel(gridPanel,c);
 
                 /* Ajout d'un élément vide pour séparer les carrés horizontalement */
