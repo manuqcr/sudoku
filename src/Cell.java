@@ -103,4 +103,14 @@ public class Cell  {
         button.setBackground(new Color(255,255,200));
         isLocked = true;
     }
+
+    public boolean isLocked() {
+        return isLocked;
+    }
+
+    public void reset() {
+        isLocked = false;
+        chosenValue = null;
+        possibleValues.clear();
+    }
 }

@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 
 public class MainDialog extends JDialog {
     private JPanel contentPane;
@@ -9,6 +10,8 @@ public class MainDialog extends JDialog {
     private JPanel gridPanel;
     private JLabel mainLabel;
     private JSpinner spinner1;
+    private JButton ouvrirButton;
+    private JButton sauverButton;
 
     GridBagLayout cellLayout = new GridBagLayout();
 
@@ -30,7 +33,27 @@ public class MainDialog extends JDialog {
 
         /* Ici on enregistre les règles : */
         lockButton.addActionListener((actionEvent) -> board.lockEverything());
+        sauverButton.addActionListener((actionEvent -> saveBoard()));
+        ouvrirButton.addActionListener((actionEvent -> loadBoard()));
 
+    }
+
+    private void loadBoard() {
+        final JFileChooser fc = new JFileChooser();
+        int returnVal = fc.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            board.loadFile(file);
+        }
+    }
+
+    private void saveBoard() {
+        final JFileChooser fc = new JFileChooser();
+        int returnVal = fc.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            board.saveToFile(file);
+        }
     }
 
     private ActionListener getActionListener(final int i) {
