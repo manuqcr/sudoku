@@ -52,6 +52,7 @@ public class MainDialog extends JDialog {
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.BOTH;
 
+        /* Faux bouton qui fait toute la colonne 4 pour séparer les groupes de 9 carrés */
         c.gridwidth = 1;
         c.gridheight = 11;
         c.gridx = 3;
@@ -60,12 +61,14 @@ public class MainDialog extends JDialog {
         separatorC4.setEnabled(false);
         gridPanel.add(separatorC4, c);
 
+        /* Faux bouton qui fait toute la colonne 8 pour séparer les groupes de 9 carrés */
         c.gridx = 7;
         c.gridy = 0;
         JButton separatorC8 = new JButton();
         separatorC8.setEnabled(false);
         gridPanel.add(separatorC8, c);
 
+        /* Faux bouton qui fait toute la ligne 4 pour séparer les groupes de 9 carrés */
         c.gridwidth = 11;
         c.gridheight = 1;
         c.gridx = 0;
@@ -75,6 +78,7 @@ public class MainDialog extends JDialog {
         separatorL4.setEnabled(false);
         gridPanel.add(separatorL4, c);
 
+        /* Faux bouton qui fait toute la ligne 8 pour séparer les groupes de 9 carrés */
         c.gridx = 0;
         c.gridy = 7;
         JButton separatorL8 = new JButton();
@@ -82,8 +86,7 @@ public class MainDialog extends JDialog {
         separatorL8.setEnabled(false);
         gridPanel.add(separatorL8, c);
 
-
-
+        /* Et là, c'est parti, on génère les 81 cases */
         c.gridy=0;
         for (int row = 0; row < 9; ++row) {
             c.gridx=0;
@@ -91,11 +94,6 @@ public class MainDialog extends JDialog {
             for (int column = 0; column < 9; ++column) {
 
                 Cell cell = new Cell(spinner1);
-                cell.setText("-");
-                cell.setMargin(new Insets(0,0,0,0));
-
-                cell.setMinimumSize(new Dimension(60,60));
-                cell.setPreferredSize(new Dimension(60,60));
 
                 c.gridwidth = 1;
                 c.gridheight = 1;
@@ -106,7 +104,7 @@ public class MainDialog extends JDialog {
                 }
 
                 cells.add(cell);
-                gridPanel.add(cell,c);
+                cell.addToPanel(gridPanel,c);
 
                 /* Ajout d'un élément vide pour séparer les carrés horizontalement */
                 if (column == 2 || column == 5) {
