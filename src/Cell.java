@@ -26,6 +26,7 @@ public class Cell  {
         button.setMinimumSize(new Dimension(60,60));
         button.setPreferredSize(new Dimension(60,60));
 
+        button.setBackground(Color.WHITE);
 
         // à chaque clic, on récupère la valeur du spinner et on la met en label du bouton
         button.addActionListener(actionEvent -> {
