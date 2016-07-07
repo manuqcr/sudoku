@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.util.ArrayList;
 
 public class MainDialog extends JDialog {
@@ -7,27 +8,42 @@ public class MainDialog extends JDialog {
     private JButton regle1Button;
     private JButton regle2Button;
     private JPanel gridPanel;
+    private JLabel mainLabel;
+    private JSpinner spinner1;
 
-    GridLayout cellLayout = new GridLayout(11,11);
+    GridLayout cellLayout = new GridLayout(11, 11);
 
-    ArrayList<JTextField> cells = new ArrayList<JTextField>(81);
+    ArrayList<Cell> cells = new ArrayList<>(81);
 
     public MainDialog() {
         setContentPane(contentPane);
         setModal(true);
 
         generateGrid();
+        spinner1.setValue(1);
+
+        /* Pour que quand on appuie sur un chiffre au clavier, ce chiffre soit séléctionné */
+        for (int i = 0; i < 9; ++i) {
+            ActionListener actionListener = getActionListener(i + 1);
+            getRootPane().registerKeyboardAction(actionListener,
+                    KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD1 + i, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        }
 
         /* Ici on enregistre les règles : */
         regle1Button.addActionListener((actionEvent) -> colorCellInBlue());
     }
 
+    private ActionListener getActionListener(final int i) {
+        return (actionEvent) -> {
+            spinner1.setValue(i);
+        };
+    }
 
     void colorCellInBlue(){
         getCell(0, 5).setBackground(Color.BLUE);
     }
 
-    JTextField getCell(int row, int column){
+    Cell getCell(int row, int column){
         return cells.get(row*9+column);
     }
 
@@ -35,7 +51,7 @@ public class MainDialog extends JDialog {
         gridPanel.setLayout(cellLayout);
         for (int row = 0; row < 9; ++row){
             for (int column = 0; column < 9; ++column) {
-                JTextField cell = new JTextField();
+                Cell cell = new Cell(spinner1);
                 cells.add(cell);
                 gridPanel.add(cell);
                 /* Ajout d'un élément vide pour séparer les carrés horizontalement */
@@ -54,7 +70,7 @@ public class MainDialog extends JDialog {
 
     public static void main(String[] args) {
         MainDialog dialog = new MainDialog();
-        dialog.setMinimumSize(new Dimension(400,400));
+        dialog.setMinimumSize(new Dimension(400, 400));
         dialog.pack();
         dialog.setVisible(true);
         System.exit(0);
