@@ -10,7 +10,9 @@ public class Cell extends JButton {
     public Cell(JSpinner spinner) {
         this.spinner = spinner;
         // à chaque clic, on récupère la valeur du spinner et on la met en label du bouton
-        addActionListener(actionEvent -> {setText(""+spinner.getValue());});
+        addActionListener(actionEvent -> {
+            setText("" + spinner.getValue());
+        });
     }
 
 

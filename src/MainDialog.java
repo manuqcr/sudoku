@@ -39,29 +39,29 @@ public class MainDialog extends JDialog {
         };
     }
 
-    void colorCellInBlue(){
+    void colorCellInBlue() {
         getCell(0, 5).setBackground(Color.BLUE);
     }
 
-    Cell getCell(int row, int column){
-        return cells.get(row*9+column);
+    Cell getCell(int row, int column) {
+        return cells.get(row * 9 + column);
     }
 
     private void generateGrid() {
         gridPanel.setLayout(cellLayout);
-        for (int row = 0; row < 9; ++row){
+        for (int row = 0; row < 9; ++row) {
             for (int column = 0; column < 9; ++column) {
                 Cell cell = new Cell(spinner1);
                 cells.add(cell);
                 gridPanel.add(cell);
                 /* Ajout d'un élément vide pour séparer les carrés horizontalement */
-                if (column == 2 || column == 5){
+                if (column == 2 || column == 5) {
                     gridPanel.add(new JLabel());
                 }
             }
             /* Ajout d'une ligne d'élément vide pour séparer les carrés verticalement */
-            if (row == 2 || row == 5){
-                for (int column = 0; column< 11; ++column){
+            if (row == 2 || row == 5) {
+                for (int column = 0; column < 11; ++column) {
                     gridPanel.add(new JLabel());
                 }
             }
