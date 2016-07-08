@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -26,72 +27,137 @@ public class Board {
 
     public void lockEverything() {
         cells.forEach(cell -> cell.lock());
+        
     }
 
     /**
-     * Renvoie les valeurs de toutes les cellules qui sont dans la même ligne que la
+     * Renvoie toutes les cellules qui sont dans la même ligne que la
      * cellule mentionnée. La valeur de la cellule mentionnée ne sera pas renvoyée
-     * @param row ligne de la cellule mentionnée
-     * @param column colonne de la cellule mentionnée
+     *
+     * @param row           ligne de la cellule mentionnée
+     * @param column        colonne de la cellule mentionnée
+     * @param extractResult méthode qui extraira le résultat de chaque cellule
      * @return
      */
-    public Set<Integer> listOtherValuesInRow(int row,int column){
-        HashSet<Integer> result = new HashSet<>();
-        for (int i = 0; i < 9; ++i){
-            if (i != column){
-                Integer cellValue = getCell(row, i).getValue();
-                if (cellValue != null){
-                    result.add(cellValue);
+    public <T> Set<T> listOtherValuesInRow(int row, int column, Function<Cell, T> extractResult) {
+        return complexListValuesInRow(row, column, false, extractResult);
+    }
+
+    /**
+     * Liste toutes les valeurs dans la ligne
+     *
+     * @param row ligne dont on veut les valeurs
+     * @return valeurs de la ligne
+     */
+    public <T> Set<T> listAllValuesInRow(int row, Function<Cell, T> extractResult) {
+        return complexListValuesInRow(row, 0 /* valeur sans importance */, true, extractResult);
+    }
+
+    /**
+     * Liste Les valeurs de la ligne
+     *
+     * @param row                   ligne dont on veut les valeurs
+     * @param column                colonne de la cellule concernée
+     * @param includeMentionnedCell inclure dans le résultat, la valeur de la cellule dont on mentionne la colonne
+     * @param extractResult         méthode qui extraira le résultat de chaque cellule
+     * @return
+     */
+    private <T> Set<T> complexListValuesInRow(int row, int column, boolean includeMentionnedCell,
+                                              Function<Cell, T> extractResult) {
+        HashSet<T> resultSet = new HashSet<>();
+        for (int i = 0; i < 9; ++i) {
+            if (includeMentionnedCell || i != column) {
+                T result = extractResult.apply(getCell(row, i));
+                if (result != null) {
+                    resultSet.add(result);
                 }
             }
         }
-        return result;
+        return resultSet;
     }
 
     /**
      * Renvoie les valeurs de toutes les cellules qui sont dans la même colonne que la
      * cellule mentionnée. La valeur de la cellule mentionnée ne sera pas renvoyée
-     * @param row ligne de la cellule mentionnée
-     * @param column colonne de la cellule mentionnée
+     *
+     * @param row           ligne de la cellule mentionnée
+     * @param column        colonne de la cellule mentionnée
+     * @param extractResult méthode qui extraira le résultat de chaque cellule
      * @return
      */
-    public Set<Integer> listOtherValuesInColumn(int row,int column){
-        HashSet<Integer> result = new HashSet<>();
-        for (int i = 0; i < 9; ++i){
-            if (i != row){
-                Integer cellValue = getCell(i, column).getValue();
-                if (cellValue != null){
-                    result.add(cellValue);
+    public <T> Set<T> listOtherValuesInColumn(int row, int column, Function<Cell, T> extractResult) {
+        return complexListValuesInColumn(row, column, false, extractResult);
+    }
+
+    /**
+     * Renvoie les valeurs de toutes les cellules qui sont dans la même colonne que la
+     * cellule mentionnée. La valeur de la cellule mentionnée sera renvoyée
+     *
+     * @param row           ligne de la cellule mentionnée
+     * @param column        colonne de la cellule mentionnée
+     * @param extractResult méthode qui extraira le résultat de chaque cellule
+     * @return
+     */
+    public <T> Set<T> listAllValuesInColumn(int row, int column, Function<Cell, T> extractResult) {
+        return complexListValuesInColumn(row, column, true, extractResult);
+    }
+
+    private <T> Set<T> complexListValuesInColumn(int row, int column, boolean includeMentionnedRow, Function<Cell, T> extractResult) {
+        HashSet<T> resultSet = new HashSet<>();
+        for (int i = 0; i < 9; ++i) {
+            if (includeMentionnedRow || i != row) {
+                T result = extractResult.apply(getCell(i, column));
+                if (result != null) {
+                    resultSet.add(result);
                 }
             }
         }
-        return result;
+        return resultSet;
     }
-
 
     /**
      * Renvoie les valeurs de toutes les cellules qui sont dans le même carré que la
      * cellule mentionnée. La valeur de la cellule mentionnée ne sera pas renvoyée
-     * @param row ligne de la cellule mentionnée
-     * @param column colonne de la cellule mentionnée
+     *
+     * @param row           ligne de la cellule mentionnée
+     * @param column        colonne de la cellule mentionnée
+     * @param extractResult méthode qui extraira le résultat de chaque cellule
      * @return
      */
-    public Set<Integer> listOtherValuesInSquare(final int row, final int column){
-        HashSet<Integer> result = new HashSet<>();
+    public <T> Set<T> listOtherValuesInSquare(final int row, final int column, Function<Cell, T> extractResult) {
+        return complexListValuesInSquare(row, column, false, extractResult);
+    }
+
+    /**
+     * Renvoie les valeurs de toutes les cellules qui sont dans le même carré que la
+     * cellule mentionnée. La valeur de la cellule mentionnée sera renvoyée
+     *
+     * @param row           ligne de la cellule mentionnée
+     * @param column        colonne de la cellule mentionnée
+     * @param extractResult méthode qui extraira le résultat de chaque cellule
+     * @return
+     */
+    public <T> Set<T> listAllValuesInSquare(final int row, final int column, Function<Cell, T> extractResult) {
+        return complexListValuesInSquare(row, column, true, extractResult);
+    }
+
+
+    private <T> Set<T> complexListValuesInSquare(int row, int column, boolean includeMentionnedCell, Function<Cell, T> extractResult) {
+        HashSet<T> resultSet = new HashSet<>();
         final int firstSquareRow = 3 * (row / 3);
         final int firstSquareColumn = 3 * (column / 3);
 
-        for (int c = firstSquareColumn; c < firstSquareColumn + 3; ++c){
+        for (int c = firstSquareColumn; c < firstSquareColumn + 3; ++c) {
             for (int r = firstSquareRow; r < firstSquareRow + 3; ++r) {
-                if (r != row || c != column){
-                    Integer cellValue = getCell(r, c).getValue();
-                    if (cellValue != null){
-                        result.add(cellValue);
+                if (includeMentionnedCell || r != row || c != column) {
+                    T result = extractResult.apply(getCell(r, c));
+                    if (result != null) {
+                        resultSet.add(result);
                     }
                 }
             }
         }
-        return result;
+        return resultSet;
     }
 
 
@@ -156,9 +222,9 @@ public class Board {
                     continue;
                 }
 
-                boolean isError = listOtherValuesInColumn(row, column).contains(cellValue);
-                isError = isError || listOtherValuesInRow(row, column).contains(cellValue);
-                isError = isError || listOtherValuesInSquare(row, column).contains(cellValue);
+                boolean isError = listOtherValuesInColumn(row, column, Cell::getValue).contains(cellValue);
+                isError = isError || listOtherValuesInRow(row, column, Cell::getValue).contains(cellValue);
+                isError = isError || listOtherValuesInSquare(row, column, Cell::getValue).contains(cellValue);
                 cell.flagInError(isError);
             }
         }
