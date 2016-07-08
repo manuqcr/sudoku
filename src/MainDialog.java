@@ -6,7 +6,7 @@ import java.io.File;
 public class MainDialog extends JDialog {
     private JPanel contentPane;
     private JButton lockButton;
-    private JButton regle1Button;
+    private JButton regleVerifierButton;
     private JPanel gridPanel;
     private JLabel mainLabel;
     private JSpinner spinner1;
@@ -35,6 +35,7 @@ public class MainDialog extends JDialog {
         lockButton.addActionListener((actionEvent) -> board.lockEverything());
         sauverButton.addActionListener((actionEvent -> saveBoard()));
         ouvrirButton.addActionListener((actionEvent -> loadBoard()));
+        regleVerifierButton.addActionListener((actionEvent -> board.findErrors()));
 
     }
 

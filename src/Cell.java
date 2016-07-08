@@ -15,30 +15,25 @@ public class Cell  {
     Set<Integer> possibleValues = new HashSet<>();
     Integer chosenValue = null;
     private boolean isLocked = false;
+    private boolean isError = false;
 
     public Cell(JSpinner spinner) {
         button = new JButton();
         this.spinner = spinner;
 
-        button.setText("-");
-
         button.setMargin(new Insets(0,0,0,0));
         button.setMinimumSize(new Dimension(60,60));
         button.setPreferredSize(new Dimension(60,60));
 
-        button.setBackground(Color.WHITE);
-
         // à chaque clic, on récupère la valeur du spinner et on la met en label du bouton
         button.addActionListener(actionEvent -> {
             setValue((Integer) spinner.getValue());
-            updateText();
         });
 
         button.addMouseListener(new MouseListener() {
             public void mouseClicked(MouseEvent mouseEvent) {
                 if (mouseEvent.getButton() == 3){
                     addPossibleValue();
-                    updateText();
                 }
             }
 
@@ -48,14 +43,19 @@ public class Cell  {
             public void mouseEntered(MouseEvent mouseEvent) {}
             public void mouseExited(MouseEvent mouseEvent) {}
         });
+        updateText();
     }
 
+    /**
+     * Ajoute à la cellule une valeur que l'utilisateur pense possible pour la case
+     */
     private void addPossibleValue() {
         if (isLocked && chosenValue != null) {
             return;
         }
         chosenValue = null;
         possibleValues.add((Integer)spinner.getValue());
+        updateText();
     }
 
     /**
@@ -67,10 +67,22 @@ public class Cell  {
         if (isLocked) {
             return;
         }
-        chosenValue = new Integer(i);
+        if (chosenValue == null || chosenValue != i){
+            chosenValue = new Integer(i);
+        } else {
+            chosenValue = null;
+        }
+        isError = false;
+        updateText();
     }
 
     public void updateText(){
+        if (isLocked){
+            button.setBackground(new Color(255,255,200));
+        } else {
+            button.setBackground(isError ? Color.RED : Color.WHITE);
+        }
+
         if (chosenValue != null){
             // S'il y a une valeur choisie, on affiche celle là en gros
             button.setText("<html><b>" + chosenValue + "</b></html>");
@@ -88,10 +100,6 @@ public class Cell  {
         }
     }
 
-    public void setBackground(Color color) {
-        button.setBackground(color);
-    }
-
     public void addToPanel(JPanel gridPanel, GridBagConstraints c) {
         gridPanel.add(button, c);
     }
@@ -100,8 +108,8 @@ public class Cell  {
         if (chosenValue == null){
             return;
         }
-        button.setBackground(new Color(255,255,200));
         isLocked = true;
+        updateText();
     }
 
     public boolean isLocked() {
@@ -112,5 +120,14 @@ public class Cell  {
         isLocked = false;
         chosenValue = null;
         possibleValues.clear();
+    }
+
+    public Integer getValue() {
+        return chosenValue;
+    }
+
+    public void flagInError(boolean isError) {
+        this.isError = isError;
+        updateText();
     }
 }
