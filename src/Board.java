@@ -3,9 +3,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -14,6 +12,8 @@ import java.util.stream.Stream;
  * Created by emmanuel on 07/07/16.
  */
 public class Board {
+
+
 
     private ArrayList<Cell> cells = new ArrayList<>(81);
 
@@ -27,7 +27,62 @@ public class Board {
 
     public void lockEverything() {
         cells.forEach(cell -> cell.lock());
-        
+        updateAllPossibleValues();
+    }
+
+    public void updateAllPossibleValues() {
+        for (int row = 0; row < 9; ++ row){
+            for (int column = 0; column < 9; ++ column){
+                getCell(row, column).resetPossibleValues();
+            }
+        }
+        for (int i =0; i < 9; ++i){
+            updatePossibleValuesByColumn(i);
+            updatePossibleValuesByRow(i);
+            updatePossibleValuesBySquare(i);
+        }
+        for (int row = 0; row < 9; ++ row){
+            for (int column = 0; column < 9; ++ column){
+                getCell(row, column).updateText();
+            }
+        }
+    }
+
+
+
+    /**
+     * Pour chaque colonne, on regarde toutes les valeurs utilisées et on les retire des valeurs possibles de chaque colonne
+     * @param i numéro de colonne
+     */
+    private void updatePossibleValuesByColumn(int i) {
+        Set<Integer> values = listAllValuesInColumn(i, Cell::getValue);
+        listAllValuesInColumn(i, Function.identity()/*permet de récupérer la cellule*/).forEach(
+                cell -> {cell.removePossibleValues(values);}
+        );
+    }
+
+    /**
+     * Pour chaque ligne, on regarde toutes les valeurs utilisées et on les retire des valeurs possibles de chaque ligne
+     * @param i numéro de ligne
+     */
+    private void updatePossibleValuesByRow(int i) {
+        Set<Integer> values = listAllValuesInRow(i, Cell::getValue);
+        listAllValuesInRow(i, Function.identity()/*permet de récupérer la cellule*/).forEach(
+                cell -> {cell.removePossibleValues(values);}
+        );
+    }
+
+    /**
+     * Pour chaque carré, on regarde toutes les valeurs utilisées et on les retire des valeurs possibles de chaque carré
+     * @param i numéro de carré
+     */
+    private void updatePossibleValuesBySquare(int i) {
+        int firstRow = (i/3)*3;
+        int firstColumn = (i%3)*3;
+        Set<Integer> values = listAllValuesInSquare(firstRow, firstColumn, Cell::getValue);
+        listAllValuesInSquare(firstRow, firstColumn, Function.identity()/*permet de récupérer la cellule*/).forEach(
+                cell -> {cell.removePossibleValues(values);}
+        );
     }
 
     /**
@@ -93,13 +148,12 @@ public class Board {
      * Renvoie les valeurs de toutes les cellules qui sont dans la même colonne que la
      * cellule mentionnée. La valeur de la cellule mentionnée sera renvoyée
      *
-     * @param row           ligne de la cellule mentionnée
      * @param column        colonne de la cellule mentionnée
      * @param extractResult méthode qui extraira le résultat de chaque cellule
      * @return
      */
-    public <T> Set<T> listAllValuesInColumn(int row, int column, Function<Cell, T> extractResult) {
-        return complexListValuesInColumn(row, column, true, extractResult);
+    public <T> Set<T> listAllValuesInColumn(int column, Function<Cell, T> extractResult) {
+        return complexListValuesInColumn(0/*inutile*/, column, true, extractResult);
     }
 
     private <T> Set<T> complexListValuesInColumn(int row, int column, boolean includeMentionnedRow, Function<Cell, T> extractResult) {

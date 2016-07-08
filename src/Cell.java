@@ -8,6 +8,8 @@ import java.util.*;
  * Created by emmanuel on 07/07/16.
  */
 public class Cell  {
+    static final Collection<Integer> ALL_POSSIBLE_VALUES =
+            Arrays.asList(1,2,3,4,5,6,7,8,9); // TODO il y a surement plus habile
 
     private final JButton button;
     private final JSpinner spinner;
@@ -135,5 +137,17 @@ public class Cell  {
     public void flagInError(boolean isError) {
         this.isError = isError;
         updateText();
+    }
+
+    public void resetPossibleValues(){
+        if (isLocked || chosenValue != null){
+            return;
+        }
+        // On recopie le set pour ne pas qu'il soit partagé entre des cellules
+        this.possibleValues = new HashSet<>(ALL_POSSIBLE_VALUES);
+    }
+
+    public void removePossibleValues(Set<Integer> forbiddenValues) {
+        this.possibleValues.removeAll(forbiddenValues);
     }
 }
