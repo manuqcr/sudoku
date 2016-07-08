@@ -54,7 +54,13 @@ public class Cell  {
             return;
         }
         chosenValue = null;
-        possibleValues.add((Integer)spinner.getValue());
+
+        Integer value = (Integer) spinner.getValue();
+        if (!possibleValues.contains(value)){
+            possibleValues.add(value);
+        } else {
+            possibleValues.remove(value);
+        }
         updateText();
     }
 
