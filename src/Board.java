@@ -25,7 +25,14 @@ public class Board {
         cells.add(cell);
     }
 
+    /**
+     * Verrouille toutes les cellules d'un plateau qui ont une valeur choisie.
+     * Ne verrouille pas si il y a au moins une erreur dans la grille.
+     */
     public void lockEverything() {
+        if (findErrors()) {
+            return;
+        }
         cells.forEach(cell -> cell.lock());
         updateAllPossibleValues();
     }
@@ -262,7 +269,13 @@ public class Board {
         );
     }
 
-    public void findErrors() {
+    /**
+     * Cherche les erreurs
+     *
+     * @return Renvoie true si au moins une erreur est rencontrée
+     */
+    public boolean findErrors() {
+        boolean atLeastOneError = false;
         HashSet<Integer> foundIntegerInRow = new HashSet<>();
         // On recherche les duplicats au sein d'une même ligne
         for (int row = 0; row < 9; ++row) {
@@ -279,10 +292,11 @@ public class Board {
                 boolean isError = listOtherValuesInColumn(row, column, Cell::getValue).contains(cellValue);
                 isError = isError || listOtherValuesInRow(row, column, Cell::getValue).contains(cellValue);
                 isError = isError || listOtherValuesInSquare(row, column, Cell::getValue).contains(cellValue);
+                atLeastOneError = atLeastOneError || isError;
                 cell.flagInError(isError);
             }
         }
-
+        return atLeastOneError;
     }
 
 
