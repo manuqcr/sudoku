@@ -1,9 +1,12 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.File;
 
 public class MainDialog extends JDialog {
+    GridBagLayout cellLayout = new GridBagLayout();
+    Board board = new Board();
     private JPanel contentPane;
     private JButton lockButton;
     private JButton regleVerifierButton;
@@ -12,10 +15,6 @@ public class MainDialog extends JDialog {
     private JSpinner spinner1;
     private JButton ouvrirButton;
     private JButton sauverButton;
-
-    GridBagLayout cellLayout = new GridBagLayout();
-
-    Board board = new Board();
 
     public MainDialog() {
         setContentPane(contentPane);
@@ -37,6 +36,14 @@ public class MainDialog extends JDialog {
         ouvrirButton.addActionListener((actionEvent -> loadBoard()));
         regleVerifierButton.addActionListener((actionEvent -> board.findErrors()));
 
+    }
+
+    public static void main(String[] args) {
+        MainDialog dialog = new MainDialog();
+        dialog.setMinimumSize(new Dimension(400, 400));
+        dialog.pack();
+        dialog.setVisible(true);
+        System.exit(0);
     }
 
     private void loadBoard() {
@@ -103,9 +110,9 @@ public class MainDialog extends JDialog {
         gridPanel.add(separatorL8, c);
 
         /* Et là, c'est parti, on génère les 81 cases */
-        c.gridy=0;
+        c.gridy = 0;
         for (int row = 0; row < 9; ++row) {
-            c.gridx=0;
+            c.gridx = 0;
 
             for (int column = 0; column < 9; ++column) {
 
@@ -113,18 +120,18 @@ public class MainDialog extends JDialog {
 
                 c.gridwidth = 1;
                 c.gridheight = 1;
-                if (row == 0 && column == 0){
+                if (row == 0 && column == 0) {
                     c.anchor = GridBagConstraints.PAGE_START;
-                } else if (row == 8 && column==8){
+                } else if (row == 8 && column == 8) {
                     c.anchor = GridBagConstraints.PAGE_END;
                 }
 
                 board.add(cell);
-                cell.addToPanel(gridPanel,c);
+                cell.addToPanel(gridPanel, c);
 
                 /* Ajout d'un élément vide pour séparer les carrés horizontalement */
                 if (column == 2 || column == 5) {
-                    c.gridx ++;
+                    c.gridx++;
                 }
                 c.gridx++;
             }
@@ -132,15 +139,7 @@ public class MainDialog extends JDialog {
             if (row == 2 || row == 5) {
                 c.gridy++;
             }
-            c.gridy ++;
+            c.gridy++;
         }
-    }
-
-    public static void main(String[] args) {
-        MainDialog dialog = new MainDialog();
-        dialog.setMinimumSize(new Dimension(400, 400));
-        dialog.pack();
-        dialog.setVisible(true);
-        System.exit(0);
     }
 }
