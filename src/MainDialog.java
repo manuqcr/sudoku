@@ -84,38 +84,16 @@ public class MainDialog extends JDialog {
         c.fill = GridBagConstraints.BOTH;
 
         /* Faux bouton qui fait toute la colonne 4 pour séparer les groupes de 9 carrés */
-        c.gridwidth = 1;
-        c.gridheight = 11;
-        c.gridx = 3;
-        c.gridy = 0;
-        JButton separatorC4 = new JButton();
-        separatorC4.setEnabled(false);
-        gridPanel.add(separatorC4, c);
+        addSeparator(c, 3, Orientation.VERTICAL);
 
         /* Faux bouton qui fait toute la colonne 8 pour séparer les groupes de 9 carrés */
-        c.gridx = 7;
-        c.gridy = 0;
-        JButton separatorC8 = new JButton();
-        separatorC8.setEnabled(false);
-        gridPanel.add(separatorC8, c);
+        addSeparator(c, 7, Orientation.VERTICAL);
 
         /* Faux bouton qui fait toute la ligne 4 pour séparer les groupes de 9 carrés */
-        c.gridwidth = 11;
-        c.gridheight = 1;
-        c.gridx = 0;
-        c.gridy = 3;
-        JButton separatorL4 = new JButton();
-        separatorL4.setText(" ");
-        separatorL4.setEnabled(false);
-        gridPanel.add(separatorL4, c);
+        addSeparator(c, 3, Orientation.HORIZONTAL);
 
         /* Faux bouton qui fait toute la ligne 8 pour séparer les groupes de 9 carrés */
-        c.gridx = 0;
-        c.gridy = 7;
-        JButton separatorL8 = new JButton();
-        separatorL8.setText(" ");
-        separatorL8.setEnabled(false);
-        gridPanel.add(separatorL8, c);
+        addSeparator(c, 7, Orientation.HORIZONTAL);
 
         /* Et là, c'est parti, on génère les 81 cases */
         c.gridy = 0;
@@ -148,6 +126,39 @@ public class MainDialog extends JDialog {
                 c.gridy++;
             }
             c.gridy++;
+        }
+    }
+
+    private void addSeparator(GridBagConstraints c, int position, Orientation orientation) {
+        boolean isVertical = orientation.isVertical();
+
+        c.gridwidth = isVertical ? 1 : 11;
+        c.gridheight = isVertical ? 11 : 1;
+
+        c.gridx = isVertical ? position : 0;
+        c.gridy = isVertical ? 0 : position;
+
+        c.ipadx = 10;
+        c.ipady = 10;
+
+        JButton separator = new JButton();
+        separator.setEnabled(false);
+        separator.setBorder(BorderFactory.createEmptyBorder());
+        gridPanel.add(separator, c);
+    }
+
+    enum Orientation {
+        VERTICAL(true),
+        HORIZONTAL(false);
+
+        boolean vertical;
+
+        Orientation(boolean v) {
+            vertical = v;
+        }
+
+        public boolean isVertical() {
+            return vertical;
         }
     }
 }
