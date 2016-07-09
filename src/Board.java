@@ -290,10 +290,15 @@ public class Board {
                     columnNumber.incrementAndGet();
                     if (intValue > 0 && intValue < 10) {
                         cell.setValue(intValue);
+                    } else {
+                        cell.reset();
                     }
                     cell.updateText();
                 }
         );
+        while (columnNumber.incrementAndGet() < 9) {
+            getCell(rowNb, columnNumber.get()).reset();
+        }
     }
 
     /**
