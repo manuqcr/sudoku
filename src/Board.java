@@ -15,9 +15,9 @@ import java.util.stream.Stream;
 public class Board {
 
 
-    private ArrayList<Cell> cells = new ArrayList<>(81);
+    final private ArrayList<Cell> cells = new ArrayList<>(81);
 
-    Cell getCell(int row, int column) {
+    private Cell getCell(int row, int column) {
         return cells.get(row * 9 + column);
     }
 
@@ -33,7 +33,7 @@ public class Board {
         if (findErrors()) {
             return;
         }
-        cells.forEach(cell -> cell.lock());
+        cells.forEach(Cell::lock);
         updateAllPossibleValues();
     }
 
@@ -66,56 +66,50 @@ public class Board {
     /**
      * Pour chaque colonne, on regarde toutes les valeurs utilisées et on les retire des valeurs possibles de chaque colonne
      *
-     * @param i numéro de colonne
+     * @param columnNumber numéro de colonne
      */
-    private void updatePossibleValuesByColumn(int i) {
-        Set<Integer> values = listAllValuesInColumn(i, Cell::getValue);
-        listAllValuesInColumn(i, Function.identity()/*permet de récupérer la cellule*/).forEach(
-                cell -> {
-                    cell.removePossibleValues(values);
-                }
+    private void updatePossibleValuesByColumn(int columnNumber) {
+        Set<Integer> values = listAllInColumn(columnNumber, Cell::getValue);
+        listAllInColumn(columnNumber, Function.identity()/*permet de récupérer la cellule*/).forEach(
+                cell -> cell.removePossibleValues(values)
         );
     }
 
     /**
      * Pour chaque ligne, on regarde toutes les valeurs utilisées et on les retire des valeurs possibles de chaque ligne
      *
-     * @param i numéro de ligne
+     * @param rowNumber numéro de ligne
      */
-    private void updatePossibleValuesByRow(int i) {
-        Set<Integer> values = listAllValuesInRow(i, Cell::getValue);
-        listAllValuesInRow(i, Function.identity()/*permet de récupérer la cellule*/).forEach(
-                cell -> {
-                    cell.removePossibleValues(values);
-                }
+    private void updatePossibleValuesByRow(int rowNumber) {
+        Set<Integer> values = listAllInRow(rowNumber, Cell::getValue);
+        listAllInRow(rowNumber, Function.identity()/*permet de récupérer la cellule*/).forEach(
+                cell -> cell.removePossibleValues(values)
         );
     }
 
     /**
      * Pour chaque carré, on regarde toutes les valeurs utilisées et on les retire des valeurs possibles de chaque carré
      *
-     * @param i numéro de carré
+     * @param squareNumber numéro de carré
      */
-    private void updatePossibleValuesBySquare(int i) {
-        Set<Integer> values = listAllValuesInSquare(i, Cell::getValue);
-        listAllValuesInSquare(i, Function.identity()/*permet de récupérer la cellule*/).forEach(
-                cell -> {
-                    cell.removePossibleValues(values);
-                }
+    private void updatePossibleValuesBySquare(int squareNumber) {
+        Set<Integer> values = listAllInSquare(squareNumber, Cell::getValue);
+        listAllInSquare(squareNumber, Function.identity()/*permet de récupérer la cellule*/).forEach(
+                cell -> cell.removePossibleValues(values)
         );
     }
 
     /**
-     * Renvoie toutes les cellules qui sont dans la même ligne que la
+     * Renvoie toutes les cellules (ou leur valeur) qui sont dans la même ligne que la
      * cellule mentionnée. La valeur de la cellule mentionnée ne sera pas renvoyée
      *
      * @param row           ligne de la cellule mentionnée
      * @param column        colonne de la cellule mentionnée
      * @param extractResult méthode qui extraira le résultat de chaque cellule
-     * @return
+     * @return les cellules ou leur valeur
      */
-    public <T> Set<T> listOtherValuesInRow(int row, int column, Function<Cell, T> extractResult) {
-        return complexListValuesInRow(row, column, false, extractResult);
+    public <T> Set<T> listOtherInRow(int row, int column, Function<Cell, T> extractResult) {
+        return complexListInRow(row, column, false, extractResult);
     }
 
     /**
@@ -124,21 +118,21 @@ public class Board {
      * @param row ligne dont on veut les valeurs
      * @return valeurs de la ligne
      */
-    public <T> Set<T> listAllValuesInRow(int row, Function<Cell, T> extractResult) {
-        return complexListValuesInRow(row, 0 /* valeur sans importance */, true, extractResult);
+    public <T> Set<T> listAllInRow(int row, Function<Cell, T> extractResult) {
+        return complexListInRow(row, 0 /* valeur sans importance */, true, extractResult);
     }
 
     /**
-     * Liste Les valeurs de la ligne
+     * Liste les cellules (ou leur valeur) de la ligne
      *
      * @param row                   ligne dont on veut les valeurs
      * @param column                colonne de la cellule concernée
      * @param includeMentionnedCell inclure dans le résultat, la valeur de la cellule dont on mentionne la colonne
      * @param extractResult         méthode qui extraira le résultat de chaque cellule
-     * @return
+     * @return les cellules ou leur valeur
      */
-    private <T> Set<T> complexListValuesInRow(int row, int column, boolean includeMentionnedCell,
-                                              Function<Cell, T> extractResult) {
+    private <T> Set<T> complexListInRow(int row, int column, boolean includeMentionnedCell,
+                                        Function<Cell, T> extractResult) {
         HashSet<T> resultSet = new HashSet<>();
         for (int i = 0; i < 9; ++i) {
             if (includeMentionnedCell || i != column) {
@@ -152,31 +146,31 @@ public class Board {
     }
 
     /**
-     * Renvoie les valeurs de toutes les cellules qui sont dans la même colonne que la
+     * Renvoie les cellules (ou leur valeur) de toutes les cellules qui sont dans la même colonne que la
      * cellule mentionnée. La valeur de la cellule mentionnée ne sera pas renvoyée
      *
      * @param row           ligne de la cellule mentionnée
      * @param column        colonne de la cellule mentionnée
      * @param extractResult méthode qui extraira le résultat de chaque cellule
-     * @return
+     * @return les cellules ou leur valeur
      */
-    public <T> Set<T> listOtherValuesInColumn(int row, int column, Function<Cell, T> extractResult) {
-        return complexListValuesInColumn(row, column, false, extractResult);
+    public <T> Set<T> listOtherInColumn(int row, int column, Function<Cell, T> extractResult) {
+        return complexListInColumn(row, column, false, extractResult);
     }
 
     /**
-     * Renvoie les valeurs de toutes les cellules qui sont dans la même colonne que la
+     * Renvoie les cellules (ou leur valeur) de toutes les cellules qui sont dans la même colonne que la
      * cellule mentionnée. La valeur de la cellule mentionnée sera renvoyée
      *
      * @param column        colonne de la cellule mentionnée
      * @param extractResult méthode qui extraira le résultat de chaque cellule
-     * @return
+     * @return les cellules ou leur valeur
      */
-    public <T> Set<T> listAllValuesInColumn(int column, Function<Cell, T> extractResult) {
-        return complexListValuesInColumn(0/*inutile*/, column, true, extractResult);
+    public <T> Set<T> listAllInColumn(int column, Function<Cell, T> extractResult) {
+        return complexListInColumn(0/*inutile*/, column, true, extractResult);
     }
 
-    private <T> Set<T> complexListValuesInColumn(int row, int column, boolean includeMentionnedRow, Function<Cell, T> extractResult) {
+    private <T> Set<T> complexListInColumn(int row, int column, boolean includeMentionnedRow, Function<Cell, T> extractResult) {
         HashSet<T> resultSet = new HashSet<>();
         for (int i = 0; i < 9; ++i) {
             if (includeMentionnedRow || i != row) {
@@ -190,47 +184,46 @@ public class Board {
     }
 
     /**
-     * Renvoie les valeurs de toutes les cellules qui sont dans le même carré que la
+     * Renvoie toutes les cellules (ou leur valeur) qui sont dans le même carré que la
      * cellule mentionnée. La valeur de la cellule mentionnée ne sera pas renvoyée
      *
      * @param row           ligne de la cellule mentionnée
      * @param column        colonne de la cellule mentionnée
      * @param extractResult méthode qui extraira le résultat de chaque cellule
-     * @return
+     * @return les cellules ou leur valeur
      */
-    public <T> Set<T> listOtherValuesInSquare(final int row, final int column, Function<Cell, T> extractResult) {
-        return complexListValuesInSquare(row, column, false, extractResult);
+    public <T> Set<T> listOtherInSquare(final int row, final int column, Function<Cell, T> extractResult) {
+        return complexListInSquare(row, column, false, extractResult);
     }
 
     /**
-     * Renvoie les valeurs de toutes les cellules qui sont dans le même carré que la
+     * Renvoie les cellules (ou leur valeur) de toutes les cellules qui sont dans le même carré que la
      * cellule mentionnée. La valeur de la cellule mentionnée sera renvoyée
      *
      * @param row           ligne de la cellule mentionnée
      * @param column        colonne de la cellule mentionnée
      * @param extractResult méthode qui extraira le résultat de chaque cellule
-     * @return
+     * @return les cellules ou leur valeur
      */
-    public <T> Set<T> listAllValuesInSquare(final int row, final int column, Function<Cell, T> extractResult) {
-        return complexListValuesInSquare(row, column, true, extractResult);
+    public <T> Set<T> listAllInSquare(final int row, final int column, Function<Cell, T> extractResult) {
+        return complexListInSquare(row, column, true, extractResult);
     }
 
     /**
-     * Renvoie les valeurs de toutes les cellules qui sont dans le carré mentionné. Le premier carré (index 0) est en
+     * Renvoie les cellules (ou leur valeur) de toutes les cellules qui sont dans le carré mentionné. Le premier carré (index 0) est en
      * haut à gauche (même ordre que les colonnes et lignes)
      *
      * @param squareNumber  numéro de carré à renvoyer
      * @param extractResult méthode qui extraira le résultat de chaque cellule
-     * @return
+     * @return les cellules ou leur valeur
      */
-    public <T> Set<T> listAllValuesInSquare(final int squareNumber, Function<Cell, T> extractResult) {
+    public <T> Set<T> listAllInSquare(final int squareNumber, Function<Cell, T> extractResult) {
         int firstRow = (squareNumber / 3) * 3;
         int firstColumn = (squareNumber % 3) * 3;
-        return complexListValuesInSquare(firstRow, firstColumn, true, extractResult);
+        return complexListInSquare(firstRow, firstColumn, true, extractResult);
     }
 
-
-    private <T> Set<T> complexListValuesInSquare(int row, int column, boolean includeMentionnedCell, Function<Cell, T> extractResult) {
+    private <T> Set<T> complexListInSquare(int row, int column, boolean includeMentionnedCell, Function<Cell, T> extractResult) {
         HashSet<T> resultSet = new HashSet<>();
         final int firstSquareRow = 3 * (row / 3);
         final int firstSquareColumn = 3 * (column / 3);
@@ -248,7 +241,6 @@ public class Board {
         return resultSet;
     }
 
-
     public void saveToFile(File targetFile) {
 
         try (FileOutputStream fileOutputStream = new FileOutputStream(targetFile)) {
@@ -265,7 +257,7 @@ public class Board {
             }
             fileOutputStream.flush();
         } catch (IOException e) {
-
+            e.printStackTrace();
         }
     }
 
@@ -308,8 +300,7 @@ public class Board {
      */
     public boolean findErrors() {
         boolean atLeastOneError = false;
-        HashSet<Integer> foundIntegerInRow = new HashSet<>();
-        // On recherche les duplicats au sein d'une même ligne
+        // On recherche les duplicats au sein d'un même groupe
         for (int row = 0; row < 9; ++row) {
             for (int column = 0; column < 9; ++column) {
                 Cell cell = getCell(row, column);
@@ -321,9 +312,9 @@ public class Board {
                     continue;
                 }
 
-                boolean isError = listOtherValuesInColumn(row, column, Cell::getValue).contains(cellValue);
-                isError = isError || listOtherValuesInRow(row, column, Cell::getValue).contains(cellValue);
-                isError = isError || listOtherValuesInSquare(row, column, Cell::getValue).contains(cellValue);
+                boolean isError = listOtherInColumn(row, column, Cell::getValue).contains(cellValue);
+                isError = isError || listOtherInRow(row, column, Cell::getValue).contains(cellValue);
+                isError = isError || listOtherInSquare(row, column, Cell::getValue).contains(cellValue);
                 atLeastOneError = atLeastOneError || isError;
                 cell.flagInError(isError);
             }
@@ -332,15 +323,15 @@ public class Board {
     }
 
     public void solveSingleCellInRowForValue() {
-        solveSingleCellInGroupForValue(rowNumber -> listAllValuesInRow(rowNumber, Function.identity()));
+        solveSingleCellInGroupForValue(rowNumber -> listAllInRow(rowNumber, Function.identity()));
     }
 
     public void solveSingleCellInColumnForValue() {
-        solveSingleCellInGroupForValue(columnNumber -> listAllValuesInColumn(columnNumber, Function.identity()));
+        solveSingleCellInGroupForValue(columnNumber -> listAllInColumn(columnNumber, Function.identity()));
     }
 
     public void solveSingleCellInSquareForValue() {
-        solveSingleCellInGroupForValue(squareNumber -> listAllValuesInSquare(squareNumber, Function.identity()));
+        solveSingleCellInGroupForValue(squareNumber -> listAllInSquare(squareNumber, Function.identity()));
     }
 
     private void solveSingleCellInGroupForValue(Function<Integer, Collection<Cell>> cellLister) {

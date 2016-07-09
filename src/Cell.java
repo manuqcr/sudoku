@@ -31,9 +31,7 @@ public class Cell {
         button.setPreferredSize(new Dimension(60, 60));
 
         // à chaque clic, on récupère la valeur du spinner et on la met en label du bouton
-        button.addActionListener(actionEvent -> {
-            setValue((Integer) spinner.getValue());
-        });
+        button.addActionListener(actionEvent -> setValue((Integer) spinner.getValue()));
 
         button.addMouseListener(new MouseListener() {
             public void mouseClicked(MouseEvent mouseEvent) {
@@ -91,7 +89,7 @@ public class Cell {
             // S'il y a une plusieurs valeurs possibles, on les affiche toutes en petit
             StringBuilder stringBuilder = new StringBuilder("<html><pre>");
             for (int i = 1; i < 10; ++i) {
-                stringBuilder.append(possibleValues.contains(new Integer(i)) ? i : " ");
+                stringBuilder.append(possibleValues.contains(i) ? i : " ");
                 stringBuilder.append(i % 3 == 0 ? "<br/>" : " ");
             }
             stringBuilder.append("</pre></html>");
@@ -137,7 +135,7 @@ public class Cell {
             return;
         }
         if (chosenValue == null || chosenValue != i) {
-            chosenValue = new Integer(i);
+            chosenValue = i;
         } else {
             chosenValue = null;
         }

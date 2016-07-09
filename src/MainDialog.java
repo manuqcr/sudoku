@@ -5,8 +5,8 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 
 public class MainDialog extends JDialog {
-    GridBagLayout cellLayout = new GridBagLayout();
-    Board board = new Board();
+    private final GridBagLayout cellLayout = new GridBagLayout();
+    private final Board board = new Board();
     private JPanel contentPane;
     private JButton lockButton;
     private JButton regleVerifierButton;
@@ -75,9 +75,7 @@ public class MainDialog extends JDialog {
     }
 
     private ActionListener getActionListener(final int i) {
-        return (actionEvent) -> {
-            spinner1.setValue(i);
-        };
+        return (actionEvent) -> spinner1.setValue(i);
     }
 
     private void generateGrid() {
