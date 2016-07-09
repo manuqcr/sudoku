@@ -15,6 +15,8 @@ public class MainDialog extends JDialog {
     private JSpinner spinner1;
     private JButton ouvrirButton;
     private JButton sauverButton;
+    private JButton majValeursPossiblesButton;
+    private JButton uneSeuleValeurPossibleButton;
 
     public MainDialog() {
         setContentPane(contentPane);
@@ -31,10 +33,12 @@ public class MainDialog extends JDialog {
         }
 
         /* Ici on enregistre les règles : */
-        lockButton.addActionListener((actionEvent) -> board.lockEverything());
-        sauverButton.addActionListener((actionEvent -> saveBoard()));
-        ouvrirButton.addActionListener((actionEvent -> loadBoard()));
-        regleVerifierButton.addActionListener((actionEvent -> board.findErrors()));
+        sauverButton.addActionListener(actionEvent -> saveBoard());
+        ouvrirButton.addActionListener(actionEvent -> loadBoard());
+        lockButton.addActionListener(actionEvent -> board.lockEverything());
+        regleVerifierButton.addActionListener(actionEvent -> board.findErrors());
+        majValeursPossiblesButton.addActionListener(actionEvent -> board.updateAllPossibleValues());
+        uneSeuleValeurPossibleButton.addActionListener(actionEvent -> board.solveSinglePossibleValue());
 
     }
 

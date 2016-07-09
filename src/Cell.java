@@ -161,4 +161,18 @@ public class Cell {
     public void removePossibleValues(Set<Integer> forbiddenValues) {
         this.possibleValues.removeAll(forbiddenValues);
     }
+
+    /**
+     * Quand une seule valeur n'est possible dans une case, en déduire la valeur
+     */
+    public void solveSingleValeurPossible() {
+        if (isLocked || chosenValue != null) {
+            return;
+        }
+        if (possibleValues.size() == 1) {
+            chosenValue = possibleValues.iterator().next();
+            possibleValues.clear();
+            updateText();
+        }
+    }
 }

@@ -56,6 +56,13 @@ public class Board {
         }
     }
 
+    /**
+     * Quand une seule valeur n'est possible dans une case, en déduire la valeur
+     */
+    public void solveSinglePossibleValue() {
+        cells.forEach(Cell::solveSingleValeurPossible);
+    }
+
 
     /**
      * Pour chaque colonne, on regarde toutes les valeurs utilisées et on les retire des valeurs possibles de chaque colonne
