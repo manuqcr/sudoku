@@ -3,11 +3,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -98,10 +97,8 @@ public class Board {
      * @param i numéro de carré
      */
     private void updatePossibleValuesBySquare(int i) {
-        int firstRow = (i / 3) * 3;
-        int firstColumn = (i % 3) * 3;
-        Set<Integer> values = listAllValuesInSquare(firstRow, firstColumn, Cell::getValue);
-        listAllValuesInSquare(firstRow, firstColumn, Function.identity()/*permet de récupérer la cellule*/).forEach(
+        Set<Integer> values = listAllValuesInSquare(i, Cell::getValue);
+        listAllValuesInSquare(i, Function.identity()/*permet de récupérer la cellule*/).forEach(
                 cell -> {
                     cell.removePossibleValues(values);
                 }
@@ -218,6 +215,20 @@ public class Board {
         return complexListValuesInSquare(row, column, true, extractResult);
     }
 
+    /**
+     * Renvoie les valeurs de toutes les cellules qui sont dans le carré mentionné. Le premier carré (index 0) est en
+     * haut à gauche (même ordre que les colonnes et lignes)
+     *
+     * @param squareNumber  numéro de carré à renvoyer
+     * @param extractResult méthode qui extraira le résultat de chaque cellule
+     * @return
+     */
+    public <T> Set<T> listAllValuesInSquare(final int squareNumber, Function<Cell, T> extractResult) {
+        int firstRow = (squareNumber / 3) * 3;
+        int firstColumn = (squareNumber % 3) * 3;
+        return complexListValuesInSquare(firstRow, firstColumn, true, extractResult);
+    }
+
 
     private <T> Set<T> complexListValuesInSquare(int row, int column, boolean includeMentionnedCell, Function<Cell, T> extractResult) {
         HashSet<T> resultSet = new HashSet<>();
@@ -248,7 +259,7 @@ public class Board {
                 Cell cell = cells.get(i);
                 String cellOutput = " ";
                 if (cell.isLocked()) {
-                    cellOutput = cell.chosenValue.toString();
+                    cellOutput = cell.getValue().toString();
                 }
                 fileOutputStream.write(cellOutput.getBytes());
             }
@@ -315,5 +326,52 @@ public class Board {
         return atLeastOneError;
     }
 
+    public void solveSingleCellInRowForValue() {
+        solveSingleCellInGroupForValue(rowNumber -> listAllValuesInRow(rowNumber, Function.identity()));
+    }
 
+    public void solveSingleCellInColumnForValue() {
+        solveSingleCellInGroupForValue(columnNumber -> listAllValuesInColumn(columnNumber, Function.identity()));
+    }
+
+    public void solveSingleCellInSquareForValue() {
+        solveSingleCellInGroupForValue(squareNumber -> listAllValuesInSquare(squareNumber, Function.identity()));
+    }
+
+    private void solveSingleCellInGroupForValue(Function<Integer, Collection<Cell>> cellLister) {
+        // itemNumber représente soit le numéro de ligne, soit le numéro de colonne, soit le numéro de carré,
+        // en fonction de cellLister
+        for (int itemNumber = 0; itemNumber < 9; ++itemNumber) {
+            Collection<Cell> cellsInGroup = cellLister.apply(itemNumber);
+            HashSet<Integer> valuesToTry = new HashSet<>(Cell.ALL_POSSIBLE_VALUES);
+
+            valuesToTry.removeAll(cellsInGroup.stream().map(Cell::getValue).collect(Collectors.toList()));
+
+            valuesToTry.forEach((valueNotFoundInRow) -> {
+                Cell singlePossibility = canOnlyOneCellInGroupHaveThisValue(cellsInGroup, valueNotFoundInRow);
+                if (singlePossibility != null) {
+                    singlePossibility.setValue(valueNotFoundInRow);
+                }
+            });
+        }
+    }
+
+    /**
+     * Indique si dans le groupe (carré, ligne ou colonne en fonction de cellLister) valueNotFoundInRow a une unique
+     * cellule dans laquelle il peut être affecté
+     *
+     * @param cellList           liste des cellules dans le group
+     * @param valueNotFoundInRow valeur à essayer
+     * @return la cellule concernée si elle est unique, null sinon
+     */
+    private Cell canOnlyOneCellInGroupHaveThisValue(Collection<Cell> cellList, Integer valueNotFoundInRow) {
+        List<Cell> cellsAllowingValue = cellList.stream().filter(
+                cell -> cell.getPossibleValues().contains(valueNotFoundInRow)
+        ).collect(Collectors.toList());
+
+        if (cellsAllowingValue.size() == 1) {
+            return cellsAllowingValue.get(0);
+        }
+        return null;
+    }
 }

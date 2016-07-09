@@ -17,6 +17,9 @@ public class MainDialog extends JDialog {
     private JButton sauverButton;
     private JButton majValeursPossiblesButton;
     private JButton uneSeuleValeurPossibleButton;
+    private JButton seulEndroitPossibleSurButton;
+    private JButton seulEndroitPossibleSurButton1;
+    private JButton seulEndroitPossibleSurButton2;
 
     public MainDialog() {
         setContentPane(contentPane);
@@ -39,6 +42,9 @@ public class MainDialog extends JDialog {
         regleVerifierButton.addActionListener(actionEvent -> board.findErrors());
         majValeursPossiblesButton.addActionListener(actionEvent -> board.updateAllPossibleValues());
         uneSeuleValeurPossibleButton.addActionListener(actionEvent -> board.solveSinglePossibleValue());
+        seulEndroitPossibleSurButton.addActionListener(actionEvent -> board.solveSingleCellInRowForValue());
+        seulEndroitPossibleSurButton1.addActionListener(actionEvent -> board.solveSingleCellInColumnForValue());
+        seulEndroitPossibleSurButton2.addActionListener(actionEvent -> board.solveSingleCellInSquareForValue());
 
     }
 

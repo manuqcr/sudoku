@@ -17,8 +17,8 @@ public class Cell {
     private final JButton button;
     private final JSpinner spinner;
 
-    Set<Integer> possibleValues = new HashSet<>();
-    Integer chosenValue = null;
+    private Set<Integer> possibleValues = new HashSet<>();
+    private Integer chosenValue = null;
     private boolean isLocked = false;
     private boolean isError = false;
 
@@ -142,6 +142,7 @@ public class Cell {
             chosenValue = null;
         }
         isError = false;
+        possibleValues.clear();
         updateText();
     }
 
@@ -174,5 +175,10 @@ public class Cell {
             possibleValues.clear();
             updateText();
         }
+    }
+
+    public HashSet<Integer> getPossibleValues() {
+        // On renvoie une copie des valeurs possible dans la case car il ne faut pas modifier le contenu d'une cellule par cette méthode
+        return new HashSet<>(possibleValues);
     }
 }
