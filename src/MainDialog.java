@@ -4,7 +4,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 
-public class MainDialog extends JDialog {
+public class MainDialog extends JFrame {
     private final GridBagLayout cellLayout = new GridBagLayout();
     private final Board board = new Board();
     private JPanel contentPane;
@@ -23,7 +23,6 @@ public class MainDialog extends JDialog {
 
     public MainDialog() {
         setContentPane(contentPane);
-        setModal(true);
 
         generateGrid();
         spinner1.setValue(1);
@@ -52,8 +51,9 @@ public class MainDialog extends JDialog {
         MainDialog dialog = new MainDialog();
         dialog.setMinimumSize(new Dimension(400, 400));
         dialog.pack();
+        dialog.setTitle("Sudoku");
         dialog.setVisible(true);
-        System.exit(0);
+        dialog.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);;
     }
 
     private void loadBoard() {
