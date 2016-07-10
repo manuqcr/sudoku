@@ -34,24 +34,19 @@ public class Board {
             return;
         }
         cells.forEach(Cell::lock);
-        updateAllPossibleValues();
-    }
-
-    public void updateAllPossibleValues() {
         for (int row = 0; row < 9; ++row) {
             for (int column = 0; column < 9; ++column) {
                 getCell(row, column).resetPossibleValues();
             }
         }
+        updateAllPossibleValues();
+    }
+
+    public void updateAllPossibleValues() {
         for (int i = 0; i < 9; ++i) {
             updatePossibleValuesByColumn(i);
             updatePossibleValuesByRow(i);
             updatePossibleValuesBySquare(i);
-        }
-        for (int row = 0; row < 9; ++row) {
-            for (int column = 0; column < 9; ++column) {
-                getCell(row, column).updateText();
-            }
         }
     }
 
