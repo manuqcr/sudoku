@@ -277,17 +277,15 @@ public class Board {
     private void loadLine(String line, int rowNb) {
         AtomicInteger columnNumber = new AtomicInteger(0);
         line.chars().forEach(character -> {
-                    Cell cell = getCell(rowNb, columnNumber.get());
-                    int intValue = character - '0';
-                    columnNumber.incrementAndGet();
-                    if (intValue > 0 && intValue < 10) {
-                        cell.setValue(intValue);
-                    } else {
-                        cell.reset();
-                    }
-                    cell.updateText();
-                }
-        );
+            Cell cell = getCell(rowNb, columnNumber.get());
+            int intValue = character - '0';
+            columnNumber.incrementAndGet();
+            cell.reset();
+            if (intValue > 0 && intValue < 10) {
+                cell.setValue(intValue);
+            }
+            cell.updateText();
+        });
         while (columnNumber.incrementAndGet() < 9) {
             getCell(rowNb, columnNumber.get()).reset();
         }
