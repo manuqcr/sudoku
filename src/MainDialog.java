@@ -127,6 +127,7 @@ public class MainDialog extends JFrame {
             }
             c.gridy++;
         }
+        board.buildTransposedBoard();
     }
 
     private void addSeparator(GridBagConstraints c, int position, Orientation orientation) {

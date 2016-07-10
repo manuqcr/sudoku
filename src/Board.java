@@ -17,12 +17,37 @@ public class Board {
 
     final private ArrayList<Cell> cells = new ArrayList<>(81);
 
+    /**
+     * Beaucoup de règles sont appliquées de la même manière sur les lignes et sur les colonnes.
+     * Et appliquer une règle sur les colonnes revient à appliquer la même règle sur la ligne de la
+     * transposée de la grille.
+     * On crée donc une autre grille, qui partage les mêmes cellules mais qui sont placées de "manière transposée".
+     */
+    private Board transposedBoard;
+
     private Cell getCell(int row, int column) {
         return cells.get(row * 9 + column);
     }
 
     public void add(Cell cell) {
         cells.add(cell);
+    }
+
+    /**
+     * Création du plateau transposé.
+     * A ne pas appeler dans le constructeur, sinon on fait un appel récursif et une boucle sans fin.
+     * Doit être appelé une unique fois, par le créateur du board, seulement une fois que toutes les cellules
+     * ont été initialisées.
+     */
+    public void buildTransposedBoard() {
+        transposedBoard = new Board();
+        for (int row = 0; row < 9; ++row) {
+            for (int column = 0; column < 9; ++column) {
+                transposedBoard.add(getCell(column, row));
+            }
+        }
+        // Et la transposée de la transposée, c'est l'original
+        transposedBoard.transposedBoard = this;
     }
 
     /**
@@ -76,10 +101,7 @@ public class Board {
      * @param rowNumber numéro de ligne
      */
     private void updatePossibleValuesByRow(int rowNumber) {
-        Set<Integer> values = listAllInRow(rowNumber, Cell::getValue);
-        listAllInRow(rowNumber, Function.identity()/*permet de récupérer la cellule*/).forEach(
-                cell -> cell.removePossibleValues(values)
-        );
+        transposedBoard.updatePossibleValuesByColumn(rowNumber);
     }
 
     /**
@@ -150,7 +172,7 @@ public class Board {
      * @return les cellules ou leur valeur
      */
     public <T> Set<T> listOtherInColumn(int row, int column, Function<Cell, T> extractResult) {
-        return complexListInColumn(row, column, false, extractResult);
+        return transposedBoard.listOtherInRow(column, row, extractResult);
     }
 
     /**
@@ -162,20 +184,7 @@ public class Board {
      * @return les cellules ou leur valeur
      */
     public <T> Set<T> listAllInColumn(int column, Function<Cell, T> extractResult) {
-        return complexListInColumn(0/*inutile*/, column, true, extractResult);
-    }
-
-    private <T> Set<T> complexListInColumn(int row, int column, boolean includeMentionnedRow, Function<Cell, T> extractResult) {
-        HashSet<T> resultSet = new HashSet<>();
-        for (int i = 0; i < 9; ++i) {
-            if (includeMentionnedRow || i != row) {
-                T result = extractResult.apply(getCell(i, column));
-                if (result != null) {
-                    resultSet.add(result);
-                }
-            }
-        }
-        return resultSet;
+        return transposedBoard.complexListInRow(column, 0/*inutile*/, true, extractResult);
     }
 
     /**
