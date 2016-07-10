@@ -74,7 +74,7 @@ public class Cell {
         updateText();
     }
 
-    public void updateText() {
+    private void updateText() {
         if (isLocked) {
             button.setBackground(new Color(255, 255, 200));
         } else {
@@ -118,6 +118,7 @@ public class Cell {
         isLocked = false;
         chosenValue = null;
         possibleValues.clear();
+        updateText();
     }
 
     public Integer getValue() {
@@ -159,6 +160,7 @@ public class Cell {
 
     public void removePossibleValues(Set<Integer> forbiddenValues) {
         this.possibleValues.removeAll(forbiddenValues);
+        updateText();
     }
 
     /**

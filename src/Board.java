@@ -279,7 +279,6 @@ public class Board {
             if (intValue > 0 && intValue < 10) {
                 cell.setValue(intValue);
             }
-            cell.updateText();
         });
         while (columnNumber.incrementAndGet() < 9) {
             getCell(rowNb, columnNumber.get()).reset();
