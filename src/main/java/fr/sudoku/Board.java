@@ -1,3 +1,5 @@
+package fr.sudoku;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -14,7 +16,6 @@ import java.util.stream.Stream;
  */
 public class Board {
 
-
     final private ArrayList<Cell> cells = new ArrayList<>(81);
 
     /**
@@ -25,7 +26,7 @@ public class Board {
      */
     private Board transposedBoard;
 
-    private Cell getCell(int row, int column) {
+    public Cell getCell(int row, int column) {
         return cells.get(row * 9 + column);
     }
 
