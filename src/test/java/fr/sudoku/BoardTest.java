@@ -56,7 +56,7 @@ public class BoardTest {
         assertEquals(38, countNotEmptyCells());
         int steps = bruteResolve();
         assertEquals(81, countNotEmptyCells());
-        assertEquals(3, steps);
+        assertEquals(2, steps);
     }
 
     @Test
@@ -65,7 +65,7 @@ public class BoardTest {
         assertEquals(26, countNotEmptyCells());
         int steps = bruteResolve();
         assertEquals(81, countNotEmptyCells());
-        assertEquals(10, steps);
+        assertEquals(3, steps);
     }
 
     @Test

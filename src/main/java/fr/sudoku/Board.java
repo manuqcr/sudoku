@@ -372,4 +372,112 @@ public class Board {
         }
         return null;
     }
+
+    protected void applyRuleNPossibleValuesInNCells() {
+        // subgroupSize : la taille du sous groupe à générer.
+        // Aucun intérêt de mettre 1 => d'autres règles couvrent déjà cela
+        // Aucun intérêt de mettre 9 => le sous groupe de 9 c'est le groupe entier
+        for (int subGroupSize = 2; subGroupSize < 9; ++subGroupSize){
+            for (int itemNb = 0; itemNb < 9; ++itemNb){
+                List<Integer> subsetIndex = initializeSubsetIndex(subGroupSize);
+                do {
+                    resolveNCellsnPossibleValuesOnSubgroup(new ArrayList<>(listAllInSquare(itemNb, Function.identity())), subsetIndex);
+                    resolveNCellsnPossibleValuesOnSubgroup(new ArrayList<>(listAllInRow(itemNb, Function.identity())), subsetIndex);
+                    resolveNCellsnPossibleValuesOnSubgroup(new ArrayList<>(listAllInColumn(itemNb, Function.identity())), subsetIndex);
+                } while (incrementSubsetIndex(subsetIndex));
+            }
+        }
+    }
+
+    /**
+     * Si les cellules du sous-groupe qui sont mentionnées dans le subsetIndex ont autant de valeur possible
+     * qu'il y a de cellules mentionnées dans subsetIndex, alors on peut dire que ces valeurs possibles sont
+     * interdites dans toutes les autres cellules du groupe
+     * @param group groupe de 9 cellules
+     * @param subsetIndex index des cellules du sous groupe
+     */
+    protected void resolveNCellsnPossibleValuesOnSubgroup(List<Cell> group, List<Integer> subsetIndex){
+        List<Cell> subset = getSubset(group, subsetIndex);
+        Set<Integer> possibleValues = subset.stream()
+                .map(Cell::getValueOrPossible)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+
+        if (possibleValues.size() == subset.size()){
+            // On supprime toutes les valeurs possibles des autres cellules du groupe
+            ArrayList<Cell> otherInGroup = new ArrayList<>(group);
+            otherInGroup.removeAll(subset);
+            otherInGroup.forEach(cell -> cell.removePossibleValues(possibleValues));
+        }
+    }
+
+    /**
+     * Si subsetSize = 1 renvoie [1]
+     * Si subsetSize = 2 renvoie [1,2]
+     * Si subsetSize = 3 renvoie [1,2,3]
+     * ...
+     * @param subsetSize
+     * @return
+     */
+    protected List<Integer> initializeSubsetIndex(int subsetSize){
+        ArrayList<Integer> result = new ArrayList<>(subsetSize);
+        for (int i = 0; i < subsetSize; ++i){
+            result.add(i);
+        }
+        return result;
+    }
+
+    /**
+     * Passe à la liste d'index suivante.
+     * Ex :
+     *   [1, 2, 3] sera mis à jour en [1, 2, 4]
+     *   [3, 4, 8] sera mis à jour en [3, 5, 6]
+     *   [3, 4] sera mis à jour en [3, 5]
+     *   [3, 8] sera mis à jour en [4, 5]
+     *   [1, 2, 3, 4, 5] sera mis à jour en [1, 2, 3, 4, 6]
+     *   [2, 4, 5, 7, 8] sera mis à jour en [2, 4, 6, 7, 8]
+     *   [2, 3, 6, 7, 8] sera mis à jour en [2, 4, 5, 6, 7]
+     * @param subsetIndex
+     * @return tant que tous les index restent inférieurs à 9, true. Sinon false car le subsetIndex n'est plus
+     * valide
+     */
+    protected boolean incrementSubsetIndex(List<Integer> subsetIndex){
+        int currentIndex = subsetIndex.size() - 1;
+        int maxForIndex = 8;
+
+        while (subsetIndex.get(currentIndex) == maxForIndex){
+            --currentIndex;
+            --maxForIndex;
+            if (currentIndex < 0){
+                return false;
+            }
+        }
+
+        int valueForCurrentIndex = subsetIndex.get(currentIndex) + 1;
+        while (currentIndex < subsetIndex.size()){
+            subsetIndex.set(currentIndex, valueForCurrentIndex);
+            currentIndex++;
+            valueForCurrentIndex++;
+        }
+
+        if (subsetIndex.get(0) == 8){
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Extrait les cellules du groupe en fonction des index fournis
+     *
+     * Ex : Si indexes contient [0, 2] on renvoit la première et 3e cellule de group
+     *
+     * @param group group dont on veut extraire les cellules
+     * @param indexes index des cellules à extraire
+     * @return liste des cellules dont l'index est mentionné dans indexes
+     */
+    protected List<Cell> getSubset(List<Cell> group, List<Integer> indexes) {
+        ArrayList<Cell> subset = new ArrayList<>(indexes.size());
+        indexes.forEach(index -> subset.add(group.get(index)));
+        return subset;
+    }
 }

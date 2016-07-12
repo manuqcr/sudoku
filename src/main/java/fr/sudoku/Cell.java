@@ -183,4 +183,11 @@ public class Cell {
         // On renvoie une copie des valeurs possible dans la case car il ne faut pas modifier le contenu d'une cellule par cette méthode
         return new HashSet<>(possibleValues);
     }
+
+    public HashSet<Integer> getValueOrPossible(){
+        if (chosenValue != null){
+            return new HashSet<Integer>(){{add(chosenValue);}};
+        }
+        return new HashSet<>(possibleValues);
+    }
 }

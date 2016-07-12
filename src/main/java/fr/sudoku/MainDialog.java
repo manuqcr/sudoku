@@ -22,6 +22,7 @@ public class MainDialog extends JFrame {
     private JButton seulEndroitPossibleSurButton;
     private JButton seulEndroitPossibleSurButton1;
     private JButton seulEndroitPossibleSurButton2;
+    private JButton ploufButton;
 
     public MainDialog() {
         setContentPane(contentPane);
@@ -46,6 +47,7 @@ public class MainDialog extends JFrame {
         seulEndroitPossibleSurButton.addActionListener(actionEvent -> board.solveSingleCellInRowForValue());
         seulEndroitPossibleSurButton1.addActionListener(actionEvent -> board.solveSingleCellInColumnForValue());
         seulEndroitPossibleSurButton2.addActionListener(actionEvent -> board.solveSingleCellInSquareForValue());
+        ploufButton.addActionListener(actionEvent -> board.applyRuleNPossibleValuesInNCells());
 
     }
 
