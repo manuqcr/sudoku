@@ -90,10 +90,8 @@ public class Board {
      * @param columnNumber numéro de colonne
      */
     private void updatePossibleValuesByColumn(int columnNumber) {
-        Set<Integer> values = listAllInColumn(columnNumber, Cell::getValue);
-        listAllInColumn(columnNumber, Function.identity()/*permet de récupérer la cellule*/).forEach(
-                cell -> cell.removePossibleValues(values)
-        );
+        Set<Integer> values = listAllValuesInColumn(columnNumber);
+        listAllCellsInColumn(columnNumber).forEach( cell -> cell.removePossibleValues(values) );
     }
 
     /**
@@ -111,8 +109,8 @@ public class Board {
      * @param squareNumber numéro de carré
      */
     private void updatePossibleValuesBySquare(int squareNumber) {
-        Set<Integer> values = listAllInSquare(squareNumber, Cell::getValue);
-        listAllInSquare(squareNumber, Function.identity()/*permet de récupérer la cellule*/).forEach(
+        Set<Integer> values = listAllValuesInSquare(squareNumber);
+        listAllCellsInSquare(squareNumber).forEach(
                 cell -> cell.removePossibleValues(values)
         );
     }
@@ -123,11 +121,14 @@ public class Board {
      *
      * @param row           ligne de la cellule mentionnée
      * @param column        colonne de la cellule mentionnée
-     * @param extractResult méthode qui extraira le résultat de chaque cellule
      * @return les cellules ou leur valeur
      */
-    public <T> Set<T> listOtherInRow(int row, int column, Function<Cell, T> extractResult) {
-        return complexListInRow(row, column, false, extractResult);
+    public Set<Cell> listOtherCellsInRow(int row, int column) {
+        return complexListCellInRow(row, column, false);
+    }
+
+    public Set<Integer> listOtherValuesInRow(int row, int column) {
+        return complexListValueInRow(row, column, false);
     }
 
     /**
@@ -136,8 +137,12 @@ public class Board {
      * @param row ligne dont on veut les valeurs
      * @return valeurs de la ligne
      */
-    public <T> Set<T> listAllInRow(int row, Function<Cell, T> extractResult) {
-        return complexListInRow(row, 0 /* valeur sans importance */, true, extractResult);
+    public Set<Cell> listAllCellsInRow(int row) {
+        return complexListCellInRow(row, 0 /* valeur sans importance */, true);
+    }
+
+    public Set<Integer> listAllValuesInRow(int row) {
+        return complexListValueInRow(row, 0 /* valeur sans importance */, true);
     }
 
     /**
@@ -146,15 +151,34 @@ public class Board {
      * @param row                   ligne dont on veut les valeurs
      * @param column                colonne de la cellule concernée
      * @param includeMentionnedCell inclure dans le résultat, la valeur de la cellule dont on mentionne la colonne
-     * @param extractResult         méthode qui extraira le résultat de chaque cellule
      * @return les cellules ou leur valeur
      */
-    private <T> Set<T> complexListInRow(int row, int column, boolean includeMentionnedCell,
-                                        Function<Cell, T> extractResult) {
-        HashSet<T> resultSet = new HashSet<>();
+    private Set<Cell> complexListCellInRow(int row, int column, boolean includeMentionnedCell) {
+        HashSet<Cell> resultSet = new HashSet<>();
         for (int i = 0; i < 9; ++i) {
             if (includeMentionnedCell || i != column) {
-                T result = extractResult.apply(getCell(row, i));
+                Cell result = getCell(row, i);
+                if (result != null) {
+                    resultSet.add(result);
+                }
+            }
+        }
+        return resultSet;
+    }
+
+    /**
+     * Liste les cellules (ou leur valeur) de la ligne
+     *
+     * @param row                   ligne dont on veut les valeurs
+     * @param column                colonne de la cellule concernée
+     * @param includeMentionnedCell inclure dans le résultat, la valeur de la cellule dont on mentionne la colonne
+     * @return les cellules ou leur valeur
+     */
+    private Set<Integer> complexListValueInRow(int row, int column, boolean includeMentionnedCell) {
+        HashSet<Integer> resultSet = new HashSet<>();
+        for (int i = 0; i < 9; ++i) {
+            if (includeMentionnedCell || i != column) {
+                Integer result = getCell(row, i).getValue();
                 if (result != null) {
                     resultSet.add(result);
                 }
@@ -169,11 +193,13 @@ public class Board {
      *
      * @param row           ligne de la cellule mentionnée
      * @param column        colonne de la cellule mentionnée
-     * @param extractResult méthode qui extraira le résultat de chaque cellule
      * @return les cellules ou leur valeur
      */
-    public <T> Set<T> listOtherInColumn(int row, int column, Function<Cell, T> extractResult) {
-        return transposedBoard.listOtherInRow(column, row, extractResult);
+    public Set<Cell> listOtherCellInColumn(int row, int column) {
+        return transposedBoard.listOtherCellsInRow(column, row);
+    }
+    public Set<Integer> listOtherValuesInColumn(int row, int column) {
+        return transposedBoard.listOtherValuesInRow(column, row);
     }
 
     /**
@@ -181,11 +207,13 @@ public class Board {
      * cellule mentionnée. La valeur de la cellule mentionnée sera renvoyée
      *
      * @param column        colonne de la cellule mentionnée
-     * @param extractResult méthode qui extraira le résultat de chaque cellule
      * @return les cellules ou leur valeur
      */
-    public <T> Set<T> listAllInColumn(int column, Function<Cell, T> extractResult) {
-        return transposedBoard.complexListInRow(column, 0/*inutile*/, true, extractResult);
+    public Set<Integer> listAllValuesInColumn(int column) {
+        return transposedBoard.complexListValueInRow(column, 0/*inutile*/, true);
+    }
+    public Set<Cell> listAllCellsInColumn(int column) {
+        return transposedBoard.complexListCellInRow(column, 0/*inutile*/, true);
     }
 
     /**
@@ -194,24 +222,10 @@ public class Board {
      *
      * @param row           ligne de la cellule mentionnée
      * @param column        colonne de la cellule mentionnée
-     * @param extractResult méthode qui extraira le résultat de chaque cellule
      * @return les cellules ou leur valeur
      */
-    public <T> Set<T> listOtherInSquare(final int row, final int column, Function<Cell, T> extractResult) {
-        return complexListInSquare(row, column, false, extractResult);
-    }
-
-    /**
-     * Renvoie les cellules (ou leur valeur) de toutes les cellules qui sont dans le même carré que la
-     * cellule mentionnée. La valeur de la cellule mentionnée sera renvoyée
-     *
-     * @param row           ligne de la cellule mentionnée
-     * @param column        colonne de la cellule mentionnée
-     * @param extractResult méthode qui extraira le résultat de chaque cellule
-     * @return les cellules ou leur valeur
-     */
-    public <T> Set<T> listAllInSquare(final int row, final int column, Function<Cell, T> extractResult) {
-        return complexListInSquare(row, column, true, extractResult);
+    public Set<Integer> listOtherValuesInSquare(final int row, final int column) {
+        return extractValues(complexListCellsInSquare(row, column, false));
     }
 
     /**
@@ -219,24 +233,26 @@ public class Board {
      * haut à gauche (même ordre que les colonnes et lignes)
      *
      * @param squareNumber  numéro de carré à renvoyer
-     * @param extractResult méthode qui extraira le résultat de chaque cellule
      * @return les cellules ou leur valeur
      */
-    public <T> Set<T> listAllInSquare(final int squareNumber, Function<Cell, T> extractResult) {
+    public Set<Integer> listAllValuesInSquare(final int squareNumber) {
+        return extractValues(listAllCellsInSquare(squareNumber));
+    }
+    public Set<Cell> listAllCellsInSquare(final int squareNumber) {
         int firstRow = (squareNumber / 3) * 3;
         int firstColumn = (squareNumber % 3) * 3;
-        return complexListInSquare(firstRow, firstColumn, true, extractResult);
+        return complexListCellsInSquare(firstRow, firstColumn, true);
     }
 
-    private <T> Set<T> complexListInSquare(int row, int column, boolean includeMentionnedCell, Function<Cell, T> extractResult) {
-        HashSet<T> resultSet = new HashSet<>();
+    private Set<Cell> complexListCellsInSquare(int row, int column, boolean includeMentionnedCell) {
+        HashSet<Cell> resultSet = new HashSet<>();
         final int firstSquareRow = 3 * (row / 3);
         final int firstSquareColumn = 3 * (column / 3);
 
         for (int c = firstSquareColumn; c < firstSquareColumn + 3; ++c) {
             for (int r = firstSquareRow; r < firstSquareRow + 3; ++r) {
                 if (includeMentionnedCell || r != row || c != column) {
-                    T result = extractResult.apply(getCell(r, c));
+                    Cell result = getCell(r, c);
                     if (result != null) {
                         resultSet.add(result);
                     }
@@ -244,6 +260,18 @@ public class Board {
             }
         }
         return resultSet;
+    }
+
+    public Set<Integer> extractValues(Set<Cell> cells){
+        ArrayList<Cell> cellList = new ArrayList<>(cells);
+        Set<Integer> result = new HashSet<>();
+        for(int i = 0; i < cellList.size(); ++i){
+            Cell cell = cellList.get(i);
+            if (cell != null){
+                result.add(cell.getValue());
+            }
+        }
+        return result;
     }
 
     public void saveToFile(File targetFile) {
@@ -314,26 +342,26 @@ public class Board {
                     continue;
                 }
 
-                boolean isError = listOtherInColumn(row, column, Cell::getValue).contains(cellValue);
-                isError = isError || listOtherInRow(row, column, Cell::getValue).contains(cellValue);
-                isError = isError || listOtherInSquare(row, column, Cell::getValue).contains(cellValue);
+                boolean isError = listOtherValuesInColumn(row, column).contains(cellValue);
+                isError = isError || listOtherValuesInRow(row, column).contains(cellValue);
+                isError = isError || listOtherValuesInSquare(row, column).contains(cellValue);
                 atLeastOneError = atLeastOneError || isError;
                 cell.flagInError(isError);
             }
         }
         return atLeastOneError;
     }
-
+// TODO : weird:
     public void solveSingleCellInRowForValue() {
-        solveSingleCellInGroupForValue(rowNumber -> listAllInRow(rowNumber, Function.identity()));
+        solveSingleCellInGroupForValue(rowNumber -> listAllCellsInRow(rowNumber));
     }
 
     public void solveSingleCellInColumnForValue() {
-        solveSingleCellInGroupForValue(columnNumber -> listAllInColumn(columnNumber, Function.identity()));
+        solveSingleCellInGroupForValue(columnNumber -> listAllCellsInColumn(columnNumber));
     }
 
     public void solveSingleCellInSquareForValue() {
-        solveSingleCellInGroupForValue(squareNumber -> listAllInSquare(squareNumber, Function.identity()));
+        solveSingleCellInGroupForValue(squareNumber -> listAllCellsInSquare(squareNumber));
     }
 
     private void solveSingleCellInGroupForValue(Function<Integer, Collection<Cell>> cellLister) {
@@ -381,9 +409,9 @@ public class Board {
             for (int itemNb = 0; itemNb < 9; ++itemNb){
                 List<Integer> subsetIndex = initializeSubsetIndex(subGroupSize);
                 do {
-                    resolveNCellsnPossibleValuesOnSubgroup(new ArrayList<>(listAllInSquare(itemNb, Function.identity())), subsetIndex);
-                    resolveNCellsnPossibleValuesOnSubgroup(new ArrayList<>(listAllInRow(itemNb, Function.identity())), subsetIndex);
-                    resolveNCellsnPossibleValuesOnSubgroup(new ArrayList<>(listAllInColumn(itemNb, Function.identity())), subsetIndex);
+                    resolveNCellsnPossibleValuesOnSubgroup(new ArrayList<>(listAllCellsInSquare(itemNb)), subsetIndex);
+                    resolveNCellsnPossibleValuesOnSubgroup(new ArrayList<>(listAllCellsInRow(itemNb)), subsetIndex);
+                    resolveNCellsnPossibleValuesOnSubgroup(new ArrayList<>(listAllCellsInColumn(itemNb)), subsetIndex);
                 } while (incrementSubsetIndex(subsetIndex));
             }
         }
