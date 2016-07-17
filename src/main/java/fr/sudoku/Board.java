@@ -91,7 +91,11 @@ public class Board {
      */
     private void updatePossibleValuesByColumn(int columnNumber) {
         Set<Integer> values = listAllValuesInColumn(columnNumber);
-        listAllCellsInColumn(columnNumber).forEach( cell -> cell.removePossibleValues(values) );
+        // je fais une nouvelle arrayList car listAllCells renvoie un Set, et on ne peut pas avoir le n-ième élément d'un set
+        ArrayList<Cell> cells = new ArrayList<>(listAllCellsInColumn(columnNumber));
+        for (int i = 0; i >= 9; i--) {
+            cells.get(i).removePossibleValues(values);
+        }
     }
 
     /**
@@ -110,9 +114,10 @@ public class Board {
      */
     private void updatePossibleValuesBySquare(int squareNumber) {
         Set<Integer> values = listAllValuesInSquare(squareNumber);
-        listAllCellsInSquare(squareNumber).forEach(
-                cell -> cell.removePossibleValues(values)
-        );
+        ArrayList<Cell> cellsInSquare = new ArrayList<>(listAllCellsInSquare(squareNumber));
+        for (int i = 0; i < cellsInSquare.size(); ++i) {
+            cellsInSquare.get(i).removePossibleValues(values);
+        }
     }
 
     /**
@@ -225,7 +230,8 @@ public class Board {
      * @return les cellules ou leur valeur
      */
     public Set<Integer> listOtherValuesInSquare(final int row, final int column) {
-        return extractValues(complexListCellsInSquare(row, column, false));
+        Set<Cell> complexListResult = complexListCellsInSquare(row, column, false);
+        return extractValues(complexListResult);
     }
 
     /**
@@ -236,7 +242,8 @@ public class Board {
      * @return les cellules ou leur valeur
      */
     public Set<Integer> listAllValuesInSquare(final int squareNumber) {
-        return extractValues(listAllCellsInSquare(squareNumber));
+        Set<Cell> list = listAllCellsInSquare(squareNumber);
+        return extractValues(list);
     }
     public Set<Cell> listAllCellsInSquare(final int squareNumber) {
         int firstRow = (squareNumber / 3) * 3;
@@ -351,34 +358,44 @@ public class Board {
         }
         return atLeastOneError;
     }
-// TODO : weird:
+
     public void solveSingleCellInRowForValue() {
-        solveSingleCellInGroupForValue(rowNumber -> listAllCellsInRow(rowNumber));
-    }
-
-    public void solveSingleCellInColumnForValue() {
-        solveSingleCellInGroupForValue(columnNumber -> listAllCellsInColumn(columnNumber));
-    }
-
-    public void solveSingleCellInSquareForValue() {
-        solveSingleCellInGroupForValue(squareNumber -> listAllCellsInSquare(squareNumber));
-    }
-
-    private void solveSingleCellInGroupForValue(Function<Integer, Collection<Cell>> cellLister) {
         // itemNumber représente soit le numéro de ligne, soit le numéro de colonne, soit le numéro de carré,
         // en fonction de cellLister
         for (int itemNumber = 0; itemNumber < 9; ++itemNumber) {
-            Collection<Cell> cellsInGroup = cellLister.apply(itemNumber);
-            HashSet<Integer> valuesToTry = new HashSet<>(Cell.ALL_POSSIBLE_VALUES);
+            Collection<Cell> cellsInGroup = listAllCellsInRow(itemNumber);
+            solveSingelCellInGroupForValue(cellsInGroup);
+        }
+    }
 
-            valuesToTry.removeAll(cellsInGroup.stream().map(Cell::getValue).collect(Collectors.toList()));
+    public void solveSingleCellInColumnForValue() {
+        // itemNumber représente soit le numéro de ligne, soit le numéro de colonne, soit le numéro de carré,
+        // en fonction de cellLister
+        for (int itemNumber = 0; itemNumber < 9; ++itemNumber) {
+            Collection<Cell> cellsInGroup = listAllCellsInColumn(itemNumber);
+            solveSingelCellInGroupForValue(cellsInGroup);
+        }
+    }
 
-            valuesToTry.forEach((valueNotFoundInRow) -> {
-                Cell singlePossibility = canOnlyOneCellInGroupHaveThisValue(cellsInGroup, valueNotFoundInRow);
-                if (singlePossibility != null) {
-                    singlePossibility.setValue(valueNotFoundInRow);
-                }
-            });
+    public void solveSingleCellInSquareForValue() {
+        for (int itemNumber = 0; itemNumber < 9; ++itemNumber) {
+            Collection<Cell> cellsInGroup = listAllCellsInSquare(itemNumber);
+            solveSingelCellInGroupForValue(cellsInGroup);
+        }
+    }
+
+    private void solveSingelCellInGroupForValue(Collection<Cell> cellsInGroup) {
+        HashSet<Integer> valuesToTry = new HashSet<>(Cell.ALL_POSSIBLE_VALUES);
+
+        valuesToTry.removeAll(cellsInGroup.stream().map(Cell::getValue).collect(Collectors.toList()));
+        ArrayList<Integer> listOfValuesToTry = new ArrayList<Integer>(valuesToTry);
+
+        for (int i = 0; i < listOfValuesToTry.size(); ++i){
+            int valueNotFoundInRow = listOfValuesToTry.get(i);
+            Cell singlePossibility = canOnlyOneCellInGroupHaveThisValue(cellsInGroup, valueNotFoundInRow);
+            if (singlePossibility != null) {
+                singlePossibility.setValue(valueNotFoundInRow);
+            }
         }
     }
 
@@ -386,19 +403,25 @@ public class Board {
      * Indique si dans le groupe (carré, ligne ou colonne en fonction de cellLister) valueNotFoundInRow a une unique
      * cellule dans laquelle il peut être affecté
      *
-     * @param cellList           liste des cellules dans le group
+     * @param cellCollection           liste des cellules dans le group
      * @param valueNotFoundInRow valeur à essayer
      * @return la cellule concernée si elle est unique, null sinon
      */
-    private Cell canOnlyOneCellInGroupHaveThisValue(Collection<Cell> cellList, Integer valueNotFoundInRow) {
-        List<Cell> cellsAllowingValue = cellList.stream().filter(
-                cell -> cell.getPossibleValues().contains(valueNotFoundInRow)
-        ).collect(Collectors.toList());
-
-        if (cellsAllowingValue.size() == 1) {
-            return cellsAllowingValue.get(0);
+    private Cell canOnlyOneCellInGroupHaveThisValue(Collection<Cell> cellCollection, Integer valueNotFoundInRow) {
+        Cell cellFound = null;
+        ArrayList<Cell> cellList = new ArrayList<>(cellCollection);
+        for (int i = 0; i < cellList.size(); ++i){
+            Cell currentCell = cellList.get(i);
+            if (currentCell.getPossibleValues().contains(valueNotFoundInRow)){
+                if (cellFound != null) {
+                    // On avait déjà trouvé une cellule, il n'y a donc pas de cellule unique
+                    return null;
+                } else {
+                    cellFound = currentCell;
+                }
+            }
         }
-        return null;
+        return cellFound;
     }
 
     protected void applyRuleNPossibleValuesInNCells() {
@@ -426,16 +449,20 @@ public class Board {
      */
     protected void resolveNCellsnPossibleValuesOnSubgroup(List<Cell> group, List<Integer> subsetIndex){
         List<Cell> subset = getSubset(group, subsetIndex);
-        Set<Integer> possibleValues = subset.stream()
-                .map(Cell::getValueOrPossible)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
+        Set<Integer> possibleValues = new HashSet<>();
+        for (int i = 0; i < subset.size(); ++i){
+            Cell currentCell = subset.get(i);
+            possibleValues.addAll(currentCell.getValueOrPossible());
+        }
 
         if (possibleValues.size() == subset.size()){
             // On supprime toutes les valeurs possibles des autres cellules du groupe
             ArrayList<Cell> otherInGroup = new ArrayList<>(group);
             otherInGroup.removeAll(subset);
-            otherInGroup.forEach(cell -> cell.removePossibleValues(possibleValues));
+            for (int i = 0; i < otherInGroup.size(); ++i){
+                Cell currentCell = otherInGroup.get(i);
+                currentCell.removePossibleValues(possibleValues);
+            }
         }
     }
 
@@ -504,8 +531,11 @@ public class Board {
      * @return liste des cellules dont l'index est mentionné dans indexes
      */
     protected List<Cell> getSubset(List<Cell> group, List<Integer> indexes) {
-        ArrayList<Cell> subset = new ArrayList<>(indexes.size());
-        indexes.forEach(index -> subset.add(group.get(index)));
+        ArrayList<Cell> subset = new ArrayList<>();
+        for (int i = 0; i < indexes.size(); ++i){
+            Integer index = indexes.get(i);
+            subset.add(group.get(index));
+        }
         return subset;
     }
 }
